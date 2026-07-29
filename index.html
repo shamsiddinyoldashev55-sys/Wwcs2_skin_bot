@@ -3,61 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CS2 Skin Bot Mini App</title>
+  <title>CS2 Skin Bot - Deposit</title>
   <style>
     :root {
       --bg-color: #0b0e14;
       --card-bg: #161b26;
       --card-border: #232a3b;
       --accent-color: #f39c12;
+      --success-color: #10b981;
       --text-main: #ffffff;
       --text-sub: #8a94a6;
-      --covert: #eb4b4b;
-      --classified: #d32ce6;
-      --restricted: #8847ff;
-      --milspec: #4b69ff;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      padding-bottom: 70px;
+      padding: 16px;
       user-select: none;
     }
 
-    /* Header */
+    /* Top Balance Section */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px;
-      background: #11151f;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .user-level {
-      background: #1e2538;
-      color: #00ff88;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: bold;
-      border: 1px solid #00ff8833;
+      margin-bottom: 20px;
     }
 
     .balance-box {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       background: #1a2130;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 20px;
       border: 1px solid var(--accent-color);
       font-weight: bold;
@@ -68,308 +53,215 @@
       background: var(--accent-color);
       color: #000;
       border: none;
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       font-weight: bold;
       cursor: pointer;
     }
 
-    /* Grid Layout */
-    .container {
-      padding: 16px;
-    }
-
-    .section-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 14px;
-      color: #e2e8f0;
-      letter-spacing: 0.5px;
-    }
-
-    .case-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    .case-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 14px 10px;
-      text-align: center;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-
-    .case-card:active {
-      transform: scale(0.97);
-    }
-
-    .case-card:hover {
-      border-color: var(--accent-color);
-    }
-
-    .case-img {
-      width: 100%;
-      max-width: 110px;
-      height: auto;
-      object-fit: contain;
-      margin-bottom: 8px;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
-    }
-
-    .case-title {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--text-main);
-    }
-
-    .case-price {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: rgba(243, 156, 18, 0.1);
-      color: var(--accent-color);
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    /* Modal (Keys ichini ko'rish) */
-    .modal {
-      display: none;
+    /* Deposit Modal overlay */
+    .modal-overlay {
+      display: flex;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(5px);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
       z-index: 1000;
       justify-content: center;
-      align-items: flex-end;
-    }
-
-    .modal-content {
-      background: #141824;
-      width: 100%;
-      max-height: 80vh;
-      border-radius: 20px 20px 0 0;
-      padding: 20px;
-      overflow-y: auto;
-      border-top: 1px solid var(--card-border);
-      animation: slideUp 0.3s ease-out;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      padding: 20px;
     }
 
-    .close-btn {
-      background: none;
-      border: none;
+    .deposit-card {
+      background: #151a26;
+      border: 1px solid #283248;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .deposit-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .deposit-sub {
+      font-size: 12px;
       color: var(--text-sub);
-      font-size: 24px;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    /* Card Box */
+    .card-display {
+      background: #0d111a;
+      border: 1px dashed #3a4763;
+      padding: 12px;
+      border-radius: 10px;
+      font-family: monospace;
+      font-size: 16px;
+      color: #00ff88;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: background 0.2s;
+    }
+
+    .card-display:active {
+      background: #182235;
+    }
+
+    /* Input Field */
+    .input-field {
+      width: 100%;
+      background: #0d111a;
+      border: 1px solid #283248;
+      border-radius: 8px;
+      padding: 12px;
+      color: #fff;
+      font-size: 13px;
+      margin-bottom: 14px;
+      outline: none;
+    }
+
+    .input-field::placeholder {
+      color: #55627a;
+    }
+
+    /* Action Buttons */
+    .btn-confirm {
+      width: 100%;
+      background: #1b7a4e;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+
+    .btn-close {
+      width: 100%;
+      background: #202738;
+      color: var(--text-sub);
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
       cursor: pointer;
     }
 
-    .items-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .item-card {
-      background: #1c2233;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      border-bottom: 3px solid #ccc;
-    }
-
-    .item-card.covert { border-color: var(--covert); }
-    .item-card.classified { border-color: var(--classified); }
-    .item-card.restricted { border-color: var(--restricted); }
-
-    .item-name {
-      font-size: 11px;
-      margin-top: 6px;
-      color: #ccc;
-    }
-
-    /* To'lov bo'limi */
-    .card-box {
-      background: linear-gradient(135deg, #1e2638, #111622);
-      border: 1px solid #2e3954;
-      padding: 16px;
-      border-radius: 12px;
-      margin-top: 15px;
-    }
-
-    .card-number {
-      font-family: monospace;
-      font-size: 18px;
-      letter-spacing: 2px;
-      color: #00ff88;
-      margin-top: 8px;
-    }
-
-    /* Bottom Nav */
-    .nav-bar {
+    /* Alert Box (Skrinshotingizdagi xabar) */
+    .custom-alert {
+      display: none;
       position: fixed;
-      bottom: 0; width: 100%;
-      height: 60px;
-      background: #11151f;
-      border-top: 1px solid var(--card-border);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-    }
-
-    .nav-item {
-      color: var(--text-sub);
-      font-size: 11px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #232a3b;
+      border: 1px solid #3a4763;
+      padding: 20px;
+      border-radius: 14px;
+      width: 280px;
       text-align: center;
-      text-decoration: none;
+      z-index: 1100;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
 
-    .nav-item.active {
-      color: var(--accent-color);
+    .alert-title {
       font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .alert-msg {
+      font-size: 13px;
+      color: var(--text-sub);
+      margin-bottom: 16px;
+      word-break: break-all;
+    }
+
+    .alert-btn {
+      color: #5b92ff;
+      font-weight: bold;
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Balance header -->
   <div class="header">
-    <div class="user-level">LVL 1</div>
     <div class="balance-box">
       <span>💰 0</span>
-      <button class="add-btn" onclick="openDeposit()">+</button>
+      <button class="add-btn" onclick="openDepositModal()">+</button>
     </div>
   </div>
 
-  <!-- Content -->
-  <div class="container">
-    <div class="section-title">CS2 Keyslar Kolleksiyasi</div>
-    
-    <div class="case-grid">
-      <!-- Kilowatt Case -->
-      <div class="case-card" onclick="openCaseModal('Kilowatt Case', 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_NsVtzdOEdtWwKGZZLVb4cfB48o49E8cd4oA_XvOcXc1XVQ06UVWV4898Bv9xK51O4F1E00U4E1G99F1l9_x1oA_5A2FpwC3_R-Irh1A28m69a/360fx360f', 100)">
-        <img class="case-img" src="https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_NsVtzdOEdtWwKGZZLVb4cfB48o49E8cd4oA_XvOcXc1XVQ06UVWV4898Bv9xK51O4F1E00U4E1G99F1l9_x1oA_5A2FpwC3_R-Irh1A28m69a/360fx360f" alt="Kilowatt Case">
-        <div class="case-title">Kilowatt Case</div>
-        <div class="case-price">100 🟡</div>
-      </div>
-
-      <!-- Revolution Case -->
-      <div class="case-card" onclick="openCaseModal('Revolution Case', 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_NsVtzdOEdtWwKGZZLVb4cfB48o49E8cd4oA_XvOcXc1XVQ06UVWV4898Bv9xK51O4F1E00U4E1G99F1l9_x1oA_5A2FmY381XyvIn/360fx360f', 250)">
-        <img class="case-img" src="https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_NsVtzdOEdtWwKGZZLVb4cfB48o49E8cd4oA_XvOcXc1XVQ06UVWV4898Bv9xK51O4F1E00U4E1G99F1l9_x1oA_5A2FmY381XyvIn/360fx360f" alt="Revolution Case">
-        <div class="case-title">Revolution Case</div>
-        <div class="case-price">250 🟡</div>
-      </div>
-
-      <!-- Dreams & Nightmares -->
-      <div class="case-card" onclick="openCaseModal('Dreams & Nightmares', 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_NsVtzdOEdtWwKGZZLVb4cfB48o49E8cd4oA_XvOcXc1XVQ06UVWV4898Bv9xK51O4F1E00U4E1G99F1l9_x1oA_5A2Flv3w0G-4zI/360fx360f', 500)">
-        <img class="case-img" src="https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_NsVtzdOEdtWwKGZZLVb4cfB48o49E8cd4oA_XvOcXc1XVQ06UVWV4898Bv9xK51O4F1E00U4E1G99F1l9_x1oA_5A2Flv3w0G-4zI/360fx360f" alt="Dreams & Nightmares">
-        <div class="case-title">Dreams & Nightmares</div>
-        <div class="case-price">500 🟡</div>
-      </div>
-
-      <!-- Recoil Case -->
-      <div class="case-card" onclick="openCaseModal('Recoil Case', 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_NsVtzdOEdtWwKGZZLVb4cfB48o49E8cd4oA_XvOcXc1XVQ06UVWV4898Bv9xK51O4F1E00U4E1G99F1l9_x1oA_5A2Fmv11mS-mXy/360fx360f', 750)">
-        <img class="case-img" src="https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_NsVtzdOEdtWwKGZZLVb4cfB48o49E8cd4oA_XvOcXc1XVQ06UVWV4898Bv9xK51O4F1E00U4E1G99F1l9_x1oA_5A2Fmv11mS-mXy/360fx360f" alt="Recoil Case">
-        <div class="case-title">Recoil Case</div>
-        <div class="case-price">750 🟡</div>
-      </div>
-    </div>
-
-    <!-- To'lov rekviziti -->
-    <div class="card-box">
-      <div style="font-size: 12px; color: var(--text-sub);">To'lov uchun Humo karta:</div>
-      <div class="card-number">9860 6067 6089 4836</div>
-    </div>
-  </div>
-
-  <!-- Keys modal (Ichidagi itemlar) -->
-  <div class="modal" id="caseModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modalTitle">Keys Ichidagi Itemlar</h3>
-        <button class="close-btn" onclick="closeModal()">&times;</button>
-      </div>
-      <p style="font-size: 12px; color: var(--text-sub);">Tushishi mumkin bo'lgan skinlar ro'yxati:</p>
+  <!-- Deposit Modal -->
+  <div class="modal-overlay" id="depositModal">
+    <div class="deposit-card">
+      <div class="deposit-title">Humo Karta orqali to'ldirish 💳</div>
+      <div class="deposit-sub">Quyidagi Humo kartasiga pul o'tkazing va so'rov yuboring:</div>
       
-      <div class="items-grid" id="modalItems">
-        <!-- JS orqali to'ldiriladi -->
+      <!-- Karta raqamingiz joylashtirildi -->
+      <div class="card-display" onclick="copyCardNumber()">
+        9860 6067 6089 4836
       </div>
+
+      <input type="text" class="input-field" placeholder="Masalan: Chek raqami yoki Ism-familiya">
+
+      <button class="btn-confirm" onclick="confirmPayment()">To'lovni tasdiqlash 🛈</button>
+      <button class="btn-close" onclick="closeDepositModal()">Yopish</button>
     </div>
   </div>
 
-  <!-- Bottom Navigation -->
-  <div class="nav-bar">
-    <div class="nav-item">🏠 Bosh sahifa</div>
-    <div class="nav-item active">📦 Keyslar</div>
-    <div class="nav-item">🎒 Inventar</div>
-    <div class="nav-item">👤 Profil</div>
+  <!-- Alert Popup (Nusxalanganda chiquvchi oyna) -->
+  <div class="custom-alert" id="copyAlert">
+    <div class="alert-title">Cs2_skin_bot</div>
+    <div class="alert-msg">
+      Humo karta raqami nusxalandi:<br>
+      <strong style="color: #fff;" id="copiedCardNum">9860606760894836</strong>
+    </div>
+    <button class="alert-btn" onclick="closeAlert()">OK</button>
   </div>
 
   <script>
-    // Keys skinlarining namuna ro'yxati
-    const caseData = {
-      "Kilowatt Case": [
-        { name: "AK-47 | Inheritance", type: "covert" },
-        { name: "AWP | Chrome Cannon", type: "classified" },
-        { name: "USP-S | Jawbreaker", type: "classified" },
-        { name: "M4A1-S | Black Lotus", type: "restricted" }
-      ],
-      "Revolution Case": [
-        { name: "M4A4 | Temukau", type: "covert" },
-        { name: "AK-47 | Head Shot", type: "covert" },
-        { name: "AWP | Duality", type: "classified" }
-      ],
-      "Dreams & Nightmares": [
-        { name: "AK-47 | Nightwish", type: "covert" },
-        { name: "MP9 | Starlight", type: "covert" }
-      ],
-      "Recoil Case": [
-        { name: "USP-S | Printstream", type: "covert" },
-        { name: "AK-47 | Ice Coaled", type: "classified" }
-      ]
-    };
+    const CARD_NUMBER = "9860606760894836";
 
-    function openCaseModal(title, imgUrl, price) {
-      document.getElementById('modalTitle').innerText = title;
-      const itemsContainer = document.getElementById('modalItems');
-      itemsContainer.innerHTML = '';
-
-      const items = caseData[title] || [];
-      items.forEach(item => {
-        itemsContainer.innerHTML += `
-          <div class="item-card ${item.type}">
-            <div style="font-size:24px;">🔫</div>
-            <div class="item-name">${item.name}</div>
-          </div>
-        `;
-      });
-
-      document.getElementById('caseModal').style.display = 'flex';
+    function copyCardNumber() {
+      // Buferga nusxalash
+      navigator.clipboard.writeText(CARD_NUMBER).catch(() => {});
+      
+      // Modal xabarnomani ko'rsatish
+      document.getElementById('copiedCardNum').innerText = CARD_NUMBER;
+      document.getElementById('copyAlert').style.display = 'block';
     }
 
-    function closeModal() {
-      document.getElementById('caseModal').style.display = 'none';
+    function closeAlert() {
+      document.getElementById('copyAlert').style.display = 'none';
+    }
+
+    function openDepositModal() {
+      document.getElementById('depositModal').style.display = 'flex';
+    }
+
+    function closeDepositModal() {
+      document.getElementById('depositModal').style.display = 'none';
+    }
+
+    function confirmPayment() {
+      alert("So'rov yuborildi! Administrator to'lovni tekshirib balansingizni to'ldiradi.");
+      closeDepositModal();
     }
   </script>
 </body>
