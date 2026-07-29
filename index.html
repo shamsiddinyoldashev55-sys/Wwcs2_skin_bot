@@ -3,492 +3,592 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS2 Skin Bot</title>
+    <title>CS2 Case & Battle Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        /* Qoraroq Siniy (Dark Navy Blue) Tema */
-        body { background-color: #0b1120; color: #f1f5f9; padding-bottom: 85px; }
-        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', 'Segoe UI', sans-serif; user-select: none; }
+
+        /* CS2 Dark Blue Cyber Theme */
+        body {
+            background: #050a14 url('https://cdn.cloudflare.steamstatic.com/apps/csgo/images/csgo_react/social/cs2.jpg') no-repeat center top / cover fixed;
+            color: #e2e8f0;
+            padding-bottom: 90px;
+            min-height: 100vh;
+        }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5, 10, 20, 0.88);
+            backdrop-filter: blur(8px);
+            z-index: 0;
+        }
+
+        .app-content { position: relative; z-index: 1; }
+
         /* Header */
-        .header { background: #10192d; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 100; }
-        .user-box { display: flex; align-items: center; gap: 8px; }
-        .lvl-badge { background: #10b981; color: #000; font-weight: bold; font-size: 0.75rem; padding: 2px 7px; border-radius: 6px; }
-        .balance-box { display: flex; align-items: center; gap: 6px; background: #1e293b; padding: 4px 10px; border-radius: 20px; border: 1px solid #334155; }
-        .balance { color: #fbbf24; font-weight: bold; font-size: 0.9rem; }
-        .add-coins-btn { background: #3b82f6; color: #fff; border: none; width: 22px; height: 22px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+        .header {
+            background: rgba(10, 20, 40, 0.95);
+            padding: 12px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #00d2ff33;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 210, 255, 0.15);
+        }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar-small {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1rem; border: 2px solid #00d2ff;
+        }
+        .user-details { text-align: left; }
+        .username { font-weight: 700; font-size: 0.9rem; color: #fff; }
+        .lvl-badge { font-size: 0.7rem; color: #00d2ff; font-weight: bold; }
+
+        .balance-card {
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid #00d2ff66;
+            padding: 5px 12px; border-radius: 20px;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 0 12px rgba(0, 210, 255, 0.2);
+        }
+        .coin-icon { width: 18px; height: 18px; filter: drop-shadow(0 0 4px #00d2ff); }
+        .balance-val { color: #00f2fe; font-weight: 800; font-size: 0.95rem; text-shadow: 0 0 8px #00f2fe; }
+        .add-btn {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            border: none; color: #fff; width: 22px; height: 22px;
+            border-radius: 50%; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 1rem;
+        }
 
         /* Views */
-        .view { display: none; padding: 15px; }
+        .view { display: none; padding: 16px; text-align: center; }
         .view.active { display: block; }
 
-        /* Cards */
-        .card { background: #141d33; border: 1px solid #243252; border-radius: 14px; padding: 15px; margin-bottom: 12px; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .xp-bar-bg { background: #0b1120; border-radius: 10px; height: 8px; width: 100%; margin-top: 8px; overflow: hidden; border: 1px solid #1e293b; }
-        .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #10b981); height: 100%; width: 0%; transition: width 0.3s; }
-        
-        /* Steam Status Box */
-        .steam-box { background: linear-gradient(135deg, #17233d, #0f192e); border: 1px solid #2563eb44; }
-        .steam-status { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .status-badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 12px; font-weight: bold; }
-        .status-disconnected { background: #ef444422; color: #f87171; border: 1px solid #ef444455; }
-        .status-connected { background: #10b98122; color: #34d399; border: 1px solid #10b98155; }
+        /* Custom Section Titles */
+        .section-title {
+            font-size: 1.1rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1.5px; color: #00d2ff; text-align: left;
+            margin: 15px 0 10px 0; display: flex; align-items: center; gap: 8px;
+            text-shadow: 0 0 10px rgba(0,210,255,0.4);
+        }
 
-        .daily-card { background: linear-gradient(135deg, #1e1b4b, #2e1065); border: 1px solid #4338ca; display: flex; justify-content: space-between; align-items: center; }
-        .claim-btn { background: #10b981; color: #000; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .claim-btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; }
+        /* Cases Grid */
+        .cases-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .case-card {
+            background: linear-gradient(145deg, rgba(10, 25, 50, 0.9), rgba(5, 15, 30, 0.95));
+            border: 1px solid #1e3a8a;
+            border-radius: 12px; padding: 14px 10px;
+            cursor: pointer; position: relative; overflow: hidden;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .case-card:hover, .case-card:active {
+            border-color: #00d2ff;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 210, 255, 0.3);
+        }
+        .case-card img { width: 110px; height: 95px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.7)); }
+        .case-name { font-weight: 700; font-size: 0.85rem; color: #f1f5f9; margin-top: 6px; }
+        .case-price { color: #00f2fe; font-weight: 800; font-size: 0.9rem; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
 
-        .ref-card { background: linear-gradient(135deg, #064e3b, #065f46); border: 1px solid #10b981; }
-        .input-box { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0b1120; color: #fff; margin-top: 6px; font-size: 0.85rem; outline: none; }
+        /* Inventory Grid */
+        .inv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .inv-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #1e293b;
+            border-radius: 10px; padding: 10px;
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .inv-card.rarity-covert { border-bottom: 3px solid #eb4b4b; background: radial-gradient(circle, rgba(235,75,75,0.15), rgba(15, 23, 42, 0.9)); }
+        .inv-card.rarity-classified { border-bottom: 3px solid #d32ce6; background: radial-gradient(circle, rgba(211,44,230,0.15), rgba(15, 23, 42, 0.9)); }
+        .inv-card.rarity-restricted { border-bottom: 3px solid #8847ff; background: radial-gradient(circle, rgba(136,71,255,0.15), rgba(15, 23, 42, 0.9)); }
+        .inv-card.rarity-milspec { border-bottom: 3px solid #4b69ff; background: radial-gradient(circle, rgba(75,105,255,0.15), rgba(15, 23, 42, 0.9)); }
+        .inv-card.rarity-gold { border-bottom: 3px solid #ffd700; background: radial-gradient(circle, rgba(255,215,0,0.2), rgba(15, 23, 42, 0.9)); }
 
-        .section-title { font-size: 0.95rem; margin: 15px 0 10px 0; color: #94a3b8; text-align: left; font-weight: 600; }
-        
-        /* CS2 Cases Grid */
-        .cases-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .case-card { background: #141d33; border: 1px solid #243252; border-radius: 14px; padding: 14px; text-align: center; cursor: pointer; transition: transform 0.2s, border-color 0.2s; position: relative; overflow: hidden; }
-        .case-card:hover { border-color: #3b82f6; }
-        .case-card:active { transform: scale(0.96); }
-        .case-card img { width: 100px; height: 90px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
-        .case-title { font-weight: bold; font-size: 0.85rem; color: #e2e8f0; margin-bottom: 4px; }
-        .case-price { color: #fbbf24; font-size: 0.85rem; font-weight: bold; }
+        .inv-card img { width: 100%; height: 70px; object-fit: contain; margin: 4px 0; }
+        .inv-item-title { font-size: 0.75rem; font-weight: bold; color: #f8fafc; height: 32px; overflow: hidden; }
+        .inv-steam-price { font-size: 0.72rem; color: #10b981; font-weight: bold; margin: 2px 0; }
+        .action-btns { display: flex; gap: 4px; margin-top: 6px; }
+        .btn-sell { background: #10b981; color: #000; border: none; border-radius: 6px; padding: 6px 0; font-weight: 800; font-size: 0.7rem; flex: 1; cursor: pointer; }
+        .btn-withdraw { background: #2563eb; color: #fff; border: none; border-radius: 6px; padding: 6px 0; font-weight: 700; font-size: 0.7rem; flex: 1; cursor: pointer; }
 
-        /* Inventory */
-        .inv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .inv-item { background: #141d33; border: 1px solid #243252; border-radius: 10px; padding: 10px; text-align: center; }
-        .inv-item img { width: 75px; height: 60px; object-fit: contain; }
-        .inv-name { font-size: 0.78rem; margin: 6px 0; color: #e2e8f0; font-weight: 600; }
-        .withdraw-btn { background: #2563eb; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: bold; cursor: pointer; width: 100%; }
+        /* CS2 Roulette Animation Modal */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(2, 6, 23, 0.95); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+        .roulette-container {
+            width: 100%; max-width: 360px; background: rgba(10, 20, 40, 0.95);
+            border: 2px solid #00d2ff; border-radius: 16px; padding: 20px 10px;
+            text-align: center; position: relative; box-shadow: 0 0 30px rgba(0,210,255,0.3);
+        }
+        .roulette-view {
+            width: 100%; height: 120px; background: #050b18; border: 2px solid #1e3a8a;
+            border-radius: 10px; overflow: hidden; position: relative; margin: 15px 0;
+        }
+        .roulette-pointer {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 4px; height: 100%; background: #00f2fe; z-index: 10;
+            box-shadow: 0 0 10px #00f2fe;
+        }
+        .roulette-track {
+            display: flex; position: absolute; left: 0; top: 10px; height: 100px;
+            transition: transform 4s cubic-bezier(0.1, 1, 0.1, 1);
+        }
+        .roulette-item {
+            min-width: 100px; height: 100px; margin: 0 5px; background: rgba(15, 23, 42, 0.9);
+            border-radius: 8px; border: 1px solid #334155; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 5px; box-sizing: border-box;
+        }
+        .roulette-item img { width: 70px; height: 50px; object-fit: contain; }
+        .roulette-item span { font-size: 0.65rem; font-weight: bold; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
 
-        /* Profile Elements */
-        .profile-avatar { width: 60px; height: 60px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; border: 2px solid #60a5fa; margin-right: 12px; }
-        .profile-header { display: flex; align-items: center; margin-bottom: 15px; }
+        /* Profile & Steam Card */
+        .profile-card {
+            background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(10,30,60,0.95));
+            border: 1px solid #00d2ff44; border-radius: 14px; padding: 18px; text-align: left; margin-bottom: 14px;
+        }
+        .steam-box { border-color: #2563eb66; background: rgba(10, 20, 45, 0.9); }
+        .input-dark {
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #1e3a8a;
+            background: #050a14; color: #00f2fe; font-size: 0.85rem; margin-top: 6px; outline: none;
+            font-weight: 600;
+        }
+        .btn-cyan {
+            background: linear-gradient(135deg, #00d2ff, #0052d4);
+            border: none; color: #fff; padding: 12px; border-radius: 8px;
+            font-weight: 800; font-size: 0.9rem; cursor: pointer; width: 100%; margin-top: 10px;
+            text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        }
 
-        /* Modal */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; flex-direction: column; z-index: 1000; }
-        .modal-content { background: #141d33; padding: 22px; border-radius: 16px; width: 88%; max-width: 330px; border: 1px solid #334155; text-align: center; }
-        .drop-result { font-size: 1.1rem; font-weight: bold; margin: 15px 0; color: #34d399; }
-        .btn { background: #2563eb; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; width: 100%; margin-top: 8px; }
+        /* Case Battle Mode UI */
+        .battle-card {
+            background: linear-gradient(135deg, rgba(20, 10, 40, 0.9), rgba(40, 10, 60, 0.9));
+            border: 1px solid #a855f7; border-radius: 14px; padding: 16px; text-align: left; margin-bottom: 15px;
+        }
 
-        /* Navigation Bar */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #10192d; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #1e293b; z-index: 100; }
-        .nav-item { color: #64748b; text-decoration: none; font-size: 0.72rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
-        .nav-item.active { color: #60a5fa; font-weight: bold; }
+        /* Nav Bar */
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(10, 15, 30, 0.98);
+            display: flex; justify-content: space-around; padding: 10px 0;
+            border-top: 2px solid #00d2ff33; z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .nav-item {
+            color: #64748b; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+            display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex: 1;
+        }
+        .nav-item.active { color: #00d2ff; text-shadow: 0 0 8px #00d2ff; }
+        .nav-icon { font-size: 1.2rem; }
     </style>
 </head>
 <body>
+    <div class="overlay"></div>
+    <div class="app-content">
 
-    <!-- Top Header -->
-    <div class="header">
-        <div class="user-box">
-            <span class="lvl-badge" id="lvlBadge">LVL 0</span>
-            <span id="username" style="font-weight: bold; font-size: 0.85rem;">Foydalanuvchi</span>
-        </div>
-        <div class="balance-box">
-            <span class="balance">💰 <span id="coins">0</span></span>
-            <button class="add-coins-btn" onclick="openDepositModal()">+</button>
-        </div>
-    </div>
-
-    <!-- 1. BOSH SAHIFA VIEW -->
-    <div id="home" class="view active">
-        <!-- Profile Card Quick Stats -->
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
-                <span>Tajriba (XP)</span>
-                <span style="color: #60a5fa;" id="xpText">0%</span>
-            </div>
-            <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpBar"></div></div>
-        </div>
-
-        <!-- Kunlik Bonus Card -->
-        <div class="card daily-card">
-            <div>
-                <h4 style="font-size:0.9rem;">Kunlik Bonus 🎁</h4>
-                <p style="font-size: 0.75rem; color: #c084fc;">Mukofot: <b id="bonusRewardText" style="color: #fbbf24;">50 🪙</b></p>
-            </div>
-            <button class="claim-btn" id="claimBtn" onclick="claimDailyBonus()">Olish</button>
-        </div>
-
-        <!-- Referal Tizimi Card -->
-        <div class="card ref-card">
-            <h4 style="font-size:0.9rem;">Do'stlarni taklif qiling 👥</h4>
-            <p style="font-size: 0.75rem; color: #a7f3d0; margin-top: 2px;">Har bir do'stingiz uchun <b>100 🪙</b> oling!</p>
-            <button class="btn" style="background:#10b981; color:#000;" onclick="copyRefLink()">Havolani nusxalash 📋</button>
-        </div>
-    </div>
-
-    <!-- 2. KEYSLAR VIEW (Haqiqiy CS2 Keyslari) -->
-    <div id="cases" class="view">
-        <div class="section-title" style="margin-top:0;">CS2 Keyslar Kolleksiyasi</div>
-        <div class="cases-grid">
-            <div class="case-card" onclick="openCase('Kilowatt Case', 100)">
-                <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pD_p-s0-M6OOnC-x-f-3yEwS2E9fL5O" alt="Kilowatt Case">
-                <div class="case-title">Kilowatt Case</div>
-                <div class="case-price">100 🪙</div>
-            </div>
-
-            <div class="case-card" onclick="openCase('Revolution Case', 250)">
-                <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pC1-1A-6mOmk-_C237A" alt="Revolution Case">
-                <div class="case-title">Revolution Case</div>
-                <div class="case-price">250 🪙</div>
-            </div>
-
-            <div class="case-card" onclick="openCase('Dreams & Nightmares', 500)">
-                <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pC7--w316e6" alt="Dreams Case">
-                <div class="case-title">Dreams & Nightmares</div>
-                <div class="case-price">500 🪙</div>
-            </div>
-
-            <div class="case-card" onclick="openCase('Recoil Case', 750)">
-                <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pS_6-wA-0z-1_S-x" alt="Recoil Case">
-                <div class="case-title">Recoil Case</div>
-                <div class="case-price">750 🪙</div>
-            </div>
-
-            <div class="case-card" onclick="openCase('Snakebite Case', 1000)">
-                <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pS8m__x398D-08A" alt="Snakebite Case">
-                <div class="case-title">Snakebite Case</div>
-                <div class="case-price">1 000 🪙</div>
-            </div>
-
-            <div class="case-card" onclick="openCase('Gallery Case', 1500)">
-                <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pC21---G266E3" alt="Gallery Case">
-                <div class="case-title">Gallery Case</div>
-                <div class="case-price">1 500 🪙</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. INVENTAR VIEW -->
-    <div id="inventory" class="view">
-        <div class="section-title" style="margin-top:0;">Sizning skinlaringiz</div>
-        <div class="inv-grid" id="invContainer">
-            <div style="grid-column: span 2; color: #64748b; padding: 30px; text-align:center;">Inventar bo'sh. Keys ochib skin yuting!</div>
-        </div>
-    </div>
-
-    <!-- 4. PROFIL VIEW (Steam Sozlamalari bilan) -->
-    <div id="profile" class="view">
-        <!-- Profil Ma'lumotlari -->
-        <div class="card">
-            <div class="profile-header">
-                <div class="profile-avatar" id="avatarLetter">U</div>
-                <div>
-                    <h3 id="profileName" style="font-size:1.1rem; color:#fff;">Foydalanuvchi</h3>
-                    <p style="font-size:0.75rem; color:#60a5fa;" id="profileLvl">Daraja: LVL 0</p>
+        <!-- Header -->
+        <div class="header">
+            <div class="user-info">
+                <div class="user-avatar-small" id="userAvatar">U</div>
+                <div class="user-details">
+                    <div class="username" id="headerName">Foydalanuvchi</div>
+                    <div class="lvl-badge" id="headerLvl">LVL 1 CS2 PRO</div>
                 </div>
             </div>
-            <button class="btn" style="background:#3b82f6;" onclick="openDepositModal()">Balansni To'ldirish (Humo) 💳</button>
+            <div class="balance-card">
+                <svg class="coin-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#00d2ff"/><circle cx="12" cy="12" r="7" fill="#0052d4"/><path d="M12 7v10M9 10h6M9 14h6" stroke="#fff" stroke-width="2"/></svg>
+                <span class="balance-val" id="coinBalance">10 000</span>
+                <button class="add-btn" onclick="openDepositModal()">+</button>
+            </div>
         </div>
 
-        <!-- Steam Hisob Ulash Bo'limi -->
-        <div class="card steam-box">
-            <div class="steam-status">
-                <span style="font-size:0.9rem; font-weight:bold; color:#60a5fa;">🎮 Steam Sozlamalari</span>
-                <span class="status-badge status-disconnected" id="steamBadge">🔴 Ulangan emas</span>
+        <!-- 1. KEYSLAR VIEW -->
+        <div id="cases" class="view active">
+            <div class="section-title">
+                <span>📦</span> CS2 KEYSLAR
             </div>
-            
-            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:12px;">Skinlarni Steam hisobingizga chiqarish uchun quyidagi ma'lumotlarni kiriting va saqlang.</p>
+            <div class="cases-grid">
+                <div class="case-card" onclick="startCaseOpen('Kilowatt Case', 5000)">
+                    <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pD_p-s0-M6OOnC-x-f-3yEwS2E9fL5O" alt="Kilowatt Case">
+                    <div class="case-name">Kilowatt Case</div>
+                    <div class="case-price">5 000 🪙</div>
+                </div>
+                <div class="case-card" onclick="startCaseOpen('Revolution Case', 10000)">
+                    <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pC1-1A-6mOmk-_C237A" alt="Revolution Case">
+                    <div class="case-name">Revolution Case</div>
+                    <div class="case-price">10 000 🪙</div>
+                </div>
+                <div class="case-card" onclick="startCaseOpen('Dreams & Nightmares', 15000)">
+                    <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pC7--w316e6" alt="Dreams Case">
+                    <div class="case-name">Dreams & Nightmares</div>
+                    <div class="case-price">15 000 🪙</div>
+                </div>
+                <div class="case-card" onclick="startCaseOpen('Recoil Case', 20000)">
+                    <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pS_6-wA-0z-1_S-x" alt="Recoil Case">
+                    <div class="case-name">Recoil Case</div>
+                    <div class="case-price">20 000 🪙</div>
+                </div>
+                <div class="case-card" onclick="startCaseOpen('Snakebite Case', 30000)">
+                    <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pS8m__x398D-08A" alt="Snakebite Case">
+                    <div class="case-name">Snakebite Case</div>
+                    <div class="case-price">30 000 🪙</div>
+                </div>
+                <div class="case-card" onclick="startCaseOpen('Gallery Case', 50000)">
+                    <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pC21---G266E3" alt="Gallery Case">
+                    <div class="case-name">Gallery Case</div>
+                    <div class="case-price">50 000 🪙</div>
+                </div>
+            </div>
+        </div>
 
-            <div style="margin-bottom:10px;">
-                <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:4px;">Steam ID / Taxallusingiz:</label>
-                <input type="text" id="steamIdInput" class="input-box" placeholder="Masalan: CS2_Player123">
+        <!-- 2. CASE BATTLE VIEW -->
+        <div id="battle" class="view">
+            <div class="section-title">
+                <span>⚔️</span> CS2 CASE BATTLE (PVP)
+            </div>
+            <div class="battle-card">
+                <h3 style="color:#c084fc; margin-bottom: 6px;">Case Battle Rejimi 🎮</h3>
+                <p style="font-size: 0.8rem; color:#94a3b8; margin-bottom: 12px;">Boshqa o'yinchilar yoki Bot bilan keys ochib bellashing! Qimmatroq skin tushirgan o'yinchi barcha skinlarni oladi.</p>
+                
+                <div style="background: rgba(5, 10, 20, 0.8); padding: 12px; border-radius: 8px; border: 1px solid #a855f7; margin-bottom: 12px;">
+                    <div style="font-size:0.85rem; font-weight:bold; color:#00f2fe;">Battle Narxi: 20 000 🪙</div>
+                    <div style="font-size:0.75rem; color:#a7f3d0; margin-top:4px;">Mukofot: Raqibning va sizning keysingizdagi skinlar!</div>
+                </div>
+                <button class="btn-cyan" style="background: linear-gradient(135deg, #a855f7, #6b21a8);" onclick="startCaseBattle()">Battle Boshlash ⚔️</button>
+            </div>
+        </div>
+
+        <!-- 3. INVENTAR VIEW -->
+        <div id="inventory" class="view">
+            <div class="section-title">
+                <span>🎒</span> SIZNING INVENTARINGIZ
+            </div>
+            <div class="inv-grid" id="invContainer">
+                <div style="grid-column: span 2; color: #64748b; padding: 40px; text-align:center;">Inventaringiz bo'sh. Keys ochib skin yuting!</div>
+            </div>
+        </div>
+
+        <!-- 4. PROFIL VIEW -->
+        <div id="profile" class="view">
+            <div class="profile-card">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                    <div class="user-avatar-small" style="width:50px; height:50px; font-size:1.4rem;" id="profAvatar">U</div>
+                    <div>
+                        <h3 id="profName" style="color:#fff; font-size:1.1rem;">Foydalanuvchi</h3>
+                        <div style="color:#00d2ff; font-size:0.8rem; font-weight:bold;" id="profLvl">Daraja: LVL 1 CS2 PRO</div>
+                    </div>
+                </div>
+                <button class="btn-cyan" onclick="openDepositModal()">Balans To'ldirish (Humo) 💳</button>
             </div>
 
-            <div style="margin-bottom:12px;">
-                <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:4px;">Steam Trade URL Havolangiz:</label>
-                <input type="text" id="steamUrlInput" class="input-box" placeholder="https://steamcommunity.com/tradeoffer/new/...">
+            <!-- Steam Trade Link Card -->
+            <div class="profile-card steam-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h4 style="color:#60a5fa;">🎮 Steam Trade Sozlamalari</h4>
+                    <span id="steamStatus" style="font-size:0.75rem; padding:3px 8px; border-radius:10px; background:#ef444422; color:#f87171; border:1px solid #ef444455; font-weight:bold;">Ulangan emas</span>
+                </div>
+                <p style="font-size:0.75rem; color:#94a3b8;">Skinlarni Steam hisobingizga chiqarib olish uchun Trade URL havolangizni kiriting:</p>
+                
+                <input type="text" id="steamTradeInput" class="input-dark" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=...">
+                <button class="btn-cyan" style="background: linear-gradient(135deg, #10b981, #059669); color:#000;" onclick="saveSteamLink()">Steam Trade URL'ni Saqlash ✅</button>
             </div>
+        </div>
 
-            <button class="btn" style="background:#10b981; color:#000;" onclick="saveSteamData()">Steam'ni Saqlash ✅</button>
+    </div>
+
+    <!-- ROULETTE / CASE UNBOXING MODAL -->
+    <div class="modal" id="rouletteModal">
+        <div class="roulette-container">
+            <h3 style="color:#00f2fe; text-shadow:0 0 10px #00f2fe;" id="modalCaseTitle">Opening Case...</h3>
+            <div class="roulette-view">
+                <div class="roulette-pointer"></div>
+                <div class="roulette-track" id="rouletteTrack"></div>
+            </div>
+            <div id="rouletteResult" style="display:none; margin-top:10px;">
+                <h4 id="wonItemTitle" style="color:#fff; font-size:1rem;">AK-47 | Inheritance</h4>
+                <div id="wonItemPrice" style="color:#10b981; font-weight:bold; font-size:0.9rem; margin:4px 0;">Steam Narxi: $120.00</div>
+                <button class="btn-cyan" onclick="closeRouletteModal()">Inventarga Qo'shish 🎒</button>
+            </div>
         </div>
     </div>
 
-    <!-- Drop Modal -->
-    <div class="modal" id="dropModal">
-        <div class="modal-content">
-            <h3>Tabriklaymiz! 🎉</h3>
-            <div class="drop-result" id="dropName">AK-47 | Inheritance</div>
-            <button class="btn" onclick="closeModal()">Inventarga qo'shish</button>
-        </div>
-    </div>
-
-    <!-- Deposit / Humo Karta orqali to'ldirish Modal -->
+    <!-- HUMO DEPOSIT MODAL -->
     <div class="modal" id="depositModal">
-        <div class="modal-content">
-            <h3 style="margin-bottom:10px;">Humo Karta orqali to'ldirish 💳</h3>
-            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:12px;">Quyidagi Humo kartasiga pul o'tkazing va so'rov yuboring:</p>
-            
-            <div style="background:#0b1120; border:1px solid #3b82f6; padding:10px; border-radius:8px; margin-bottom:12px;">
-                <div style="font-size:0.75rem; color:#60a5fa;">Humo Karta Raqami:</div>
-                <div style="font-size:1rem; font-weight:bold; color:#fff; letter-spacing:1px; margin:4px 0;" id="humoCardNum">9860 3800 1234 5678</div>
-                <button onclick="copyHumoCard()" style="background:#2563eb; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:0.7rem; cursor:pointer;">Kartani nusxalash 📋</button>
+        <div class="roulette-container" style="max-width:340px; text-align:left;">
+            <h3 style="color:#00d2ff; text-align:center; margin-bottom:10px;">Balans To'ldirish 💳</h3>
+            <p style="font-size:0.78rem; color:#94a3b8; margin-bottom:12px;">Quyidagi Humo kartasiga pul o'tkazing va chek raqamini yuboring:</p>
+
+            <div style="background:#050a14; border:1px solid #00d2ff; padding:10px; border-radius:8px; margin-bottom:12px; text-align:center;">
+                <div style="font-size:0.75rem; color:#00d2ff;">Humo Karta Raqami:</div>
+                <div style="font-size:1.1rem; font-weight:800; color:#fff; letter-spacing:1px; margin:4px 0;">9860 3800 1234 5678</div>
+                <button onclick="copyHumoCard()" style="background:#00d2ff; color:#000; border:none; padding:4px 10px; border-radius:4px; font-size:0.7rem; font-weight:bold; cursor:pointer;">Kartani nusxalash 📋</button>
             </div>
 
-            <div style="margin-bottom:10px; text-align:left;">
-                <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:4px;">Tarifni tanlang:</label>
-                <select id="humoAmountSelect" class="input-box" style="margin-top:0;">
-                    <option value="1000|10000">1 000 🪙 — 10 000 UZS</option>
-                    <option value="5000|45000">5 000 🪙 — 45 000 UZS</option>
-                    <option value="10000|85000">10 000 🪙 — 85 000 UZS</option>
-                </select>
-            </div>
+            <label style="font-size:0.75rem; color:#94a3b8;">Tarifni tanlang:</label>
+            <select id="depositOption" class="input-dark" style="margin-top:2px; margin-bottom:10px;">
+                <option value="10000|15000">10 000 🪙 — 15 000 UZS</option>
+                <option value="30000|40000">30 000 🪙 — 40 000 UZS</option>
+                <option value="100000|120000">100 000 🪙 — 120 000 UZS</option>
+            </select>
 
-            <div style="margin-bottom:12px; text-align:left;">
-                <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:4px;">Chek yoki To'lov ma'lumotlari:</label>
-                <input type="text" id="humoCheckInput" class="input-box" placeholder="Masalan: Chek raqami yoki Ism-familiya" style="margin-top:0;">
-            </div>
+            <label style="font-size:0.75rem; color:#94a3b8;">Chek / To'lov tasdig'i:</label>
+            <input type="text" id="checkNumberInput" class="input-dark" placeholder="Chek raqami yoki ism-familiya" style="margin-top:2px;">
 
-            <button class="btn" style="background:#10b981; color:#000;" onclick="submitHumoDeposit()">To'lovni tasdiqlash 📤</button>
-            <button class="btn" style="background:#334155; margin-top:6px;" onclick="closeDepositModal()">Yopish</button>
+            <button class="btn-cyan" style="background: linear-gradient(135deg, #10b981, #059669); color:#000;" onclick="submitDeposit()">So'rov yuborish 📤</button>
+            <button class="btn-cyan" style="background:#334155; margin-top:6px;" onclick="closeDepositModal()">Yopish</button>
         </div>
     </div>
 
     <!-- Navigation Bar -->
     <div class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home')" id="nav-home">🏠 Bosh sahifa</div>
-        <div class="nav-item" onclick="switchTab('cases')" id="nav-cases">📦 Keyslar</div>
-        <div class="nav-item" onclick="switchTab('inventory')" id="nav-inventory">🎒 Inventar</div>
-        <div class="nav-item" onclick="switchTab('profile')" id="nav-profile">👤 Profil</div>
+        <div class="nav-item active" id="nav-cases" onclick="switchTab('cases')">
+            <span class="nav-icon">📦</span> Keyslar
+        </div>
+        <div class="nav-item" id="nav-battle" onclick="switchTab('battle')">
+            <span class="nav-icon">⚔️</span> Case Battle
+        </div>
+        <div class="nav-item" id="nav-inventory" onclick="switchTab('inventory')">
+            <span class="nav-icon">🎒</span> Inventar
+        </div>
+        <div class="nav-item" id="nav-profile" onclick="switchTab('profile')">
+            <span class="nav-icon">👤</span> Profil
+        </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let userId = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user.id : "user123";
-        let userNameVal = "Foydalanuvchi";
+        let userName = "CS2 O'yinchi";
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            userNameVal = tg.initDataUnsafe.user.first_name;
-            document.getElementById('username').innerText = userNameVal;
-            document.getElementById('profileName').innerText = userNameVal;
-            document.getElementById('avatarLetter').innerText = userNameVal.charAt(0).toUpperCase();
+            userName = tg.initDataUnsafe.user.first_name;
         }
+        document.getElementById('headerName').innerText = userName;
+        document.getElementById('profName').innerText = userName;
+        document.getElementById('userAvatar').innerText = userName.charAt(0).toUpperCase();
+        document.getElementById('profAvatar').innerText = userName.charAt(0).toUpperCase();
 
         // LocalStorage Ma'lumotlari
-        let coins = parseInt(localStorage.getItem('cs2_coins')) || 0;
-        let level = parseInt(localStorage.getItem('cs2_level')) || 0;
-        let xp = parseInt(localStorage.getItem('cs2_xp')) || 0;
-        let streak = parseInt(localStorage.getItem('cs2_streak')) || 0;
-        let lastClaim = localStorage.getItem('cs2_last_claim') || null;
-        let inventory = JSON.parse(localStorage.getItem('cs2_inventory')) || [];
-        let steamName = localStorage.getItem('cs2_steam_name') || "";
-        let steamUrl = localStorage.getItem('cs2_steam_url') || "";
-        let isReferred = localStorage.getItem('cs2_referred') || false;
-        let lastDrop = "";
+        let coins = parseInt(localStorage.getItem('cs2_blue_coins')) || 10000;
+        let inventory = JSON.parse(localStorage.getItem('cs2_inventory_v2')) || [];
+        let steamTradeUrl = localStorage.getItem('cs2_steam_trade_url') || "";
+        let wonItemGlobal = null;
 
-        // Referal tekshiruvi
-        if (tg.initDataUnsafe && tg.initDataUnsafe.start_param && !isReferred) {
-            coins += 100;
-            localStorage.setItem('cs2_coins', coins);
-            localStorage.setItem('cs2_referred', "true");
-            alert("Siz do'stingiz taklifi orqali kirdingiz va 100 🪙 bonus oldingiz! 🎉");
-        }
-
-        // CS2 Skinlar Ro'yxati
-        const skinsList = {
-            "Kilowatt Case": ["AK-47 | Inheritance", "AWP | Chrome Cannon", "USP-S | Jawbreaker", "M4A1-S | Black Lotus", "★ Kukri Knife | Fade"],
-            "Revolution Case": ["M4A4 | Temukau", "AK-47 | Head Shot", "AWP | Duality", "MAC-10 | Sakkaku", "★ Sport Gloves | Vice"],
-            "Dreams & Nightmares": ["AK-47 | Nightwish", "MP9 | Starlight Protector", "Dual Berettas | Melondrama", "★ Butterfly Knife | Lore"],
-            "Recoil Case": ["USP-S | Printstream", "AK-47 | Ice Coaled", "AWP | Chromatic Aberration", "★ Specialist Gloves | Marble Fade"],
-            "Snakebite Case": ["USP-S | The Traitor", "M4A4 | In Living Color", "AK-47 | Slate", "★ Karambit | Autotronic"],
-            "Gallery Case": ["M4A1-S | Vaporwave", "AK-47 | Burlap", "UMP-45 | Crime Scene", "★ M9 Bayonet | Doppler"]
-        };
+        // CS2 Real Skinlar bazasi
+        const cs2Database = [
+            { name: "AK-47 | Inheritance", priceUSD: 110, coinVal: 88000, img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pD_p-s0-M6OOnC-x-f-3yEwS2E9fL5O", rarity: "cover" },
+            { name: "AWP | Chrome Cannon", priceUSD: 65, coinVal: 52000, img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pD_p-s0-M6OOnC-x-f-3yEwS2E9fL5O", rarity: "cover" },
+            { name: "M4A1-S | Black Lotus", priceUSD: 18, coinVal: 14400, img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pD_p-s0-M6OOnC-x-f-3yEwS2E9fL5O", rarity: "restricted" },
+            { name: "USP-S | Jawbreaker", priceUSD: 12, coinVal: 9600, img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pD_p-s0-M6OOnC-x-f-3yEwS2E9fL5O", rarity: "milspec" },
+            { name: "★ Butterfly Knife | Doppler", priceUSD: 1800, coinVal: 1440000, img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pC7--w316e6", rarity: "gold" },
+            { name: "★ Sport Gloves | Vice", priceUSD: 1200, coinVal: 960000, img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pC1-1A-6mOmk-_C237A", rarity: "gold" },
+            { name: "AK-47 | Nightwish", priceUSD: 45, coinVal: 36000, img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pC7--w316e6", rarity: "classified" },
+            { name: "M4A4 | Temukau", priceUSD: 85, coinVal: 68000, img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pC1-1A-6mOmk-_C237A", rarity: "cover" }
+        ];
 
         function updateUI() {
-            document.getElementById('coins').innerText = coins;
-            document.getElementById('lvlBadge').innerText = "LVL " + level;
-            document.getElementById('profileLvl').innerText = "Daraja: LVL " + level;
-            document.getElementById('xpText').innerText = xp + "%";
-            document.getElementById('xpBar').style.width = xp + "%";
-
-            // Steam statusini yangilash
-            const badge = document.getElementById('steamBadge');
-            if (steamUrl && steamName) {
-                badge.className = "status-badge status-connected";
-                badge.innerText = "🟢 Ulangan";
-                document.getElementById('steamIdInput').value = steamName;
-                document.getElementById('steamUrlInput').value = steamUrl;
+            document.getElementById('coinBalance').innerText = coins.toLocaleString();
+            
+            const steamStatus = document.getElementById('steamStatus');
+            if (steamTradeUrl) {
+                steamStatus.innerText = "🟢 Ulangan";
+                steamStatus.style.background = "#10b98122";
+                steamStatus.style.color = "#34d399";
+                steamStatus.style.borderColor = "#10b98155";
+                document.getElementById('steamTradeInput').value = steamTradeUrl;
             } else {
-                badge.className = "status-badge status-disconnected";
-                badge.innerText = "🔴 Ulangan emas";
+                steamStatus.innerText = "🔴 Ulangan emas";
+                steamStatus.style.background = "#ef444422";
+                steamStatus.style.color = "#f87171";
+                steamStatus.style.borderColor = "#ef444455";
             }
 
-            updateInventory();
-        }
-
-        function saveSteamData() {
-            let sId = document.getElementById('steamIdInput').value.trim();
-            let sUrl = document.getElementById('steamUrlInput').value.trim();
-
-            if (!sId) {
-                alert("Iltimos, Steam ID yoki taxallusingizni kiriting!");
-                return;
-            }
-            if (!sUrl.includes("steamcommunity.com")) {
-                alert("Iltimos, to'g'ri Steam Trade URL havolasini kiriting!");
-                return;
-            }
-
-            localStorage.setItem('cs2_steam_name', sId);
-            localStorage.setItem('cs2_steam_url', sUrl);
-            steamName = sId;
-            steamUrl = sUrl;
-
-            updateUI();
-            alert("Steam hisobingiz muvaffaqiyatli saqlandi va ulandi! 🎮✅");
-        }
-
-        function copyRefLink() {
-            let refLink = "https://t.me/Wwcs2_skin_bot/Wwcs2_skin_bot?startapp=ref_" + userId;
-            navigator.clipboard.writeText(refLink);
-            alert("Referal havolangiz nusxalandi! Do'stlaringizga yuboring:\n\n" + refLink);
-        }
-
-        function openDepositModal() {
-            document.getElementById('depositModal').style.display = 'flex';
-        }
-
-        function closeDepositModal() {
-            document.getElementById('depositModal').style.display = 'none';
-        }
-
-        function copyHumoCard() {
-            let cardNum = "9860380012345678";
-            navigator.clipboard.writeText(cardNum);
-            alert("Humo karta raqami nusxalandi: " + cardNum);
-        }
-
-        function submitHumoDeposit() {
-            let selectVal = document.getElementById('humoAmountSelect').value.split('|');
-            let coinsToAdd = parseInt(selectVal[0]);
-            let priceUZS = selectVal[1];
-            let checkInfo = document.getElementById('humoCheckInput').value.trim();
-
-            if (!checkInfo) {
-                alert("Iltimos, chek raqami yoki to'lov ma'lumotini kiriting!");
-                return;
-            }
-
-            alert("To'lov so'rovi muvaffaqiyatli yuborildi! 💳\n\nSiz " + priceUZS + " UZS o'tkazib, " + coinsToAdd + " 🪙 olish uchun ariza topshirdingiz. Bot adminlari tekshirib tasdiqlagach, tangalar hisobingizga qo'shiladi.");
-            closeDepositModal();
-        }
-
-        function checkDailyBonus() {
-            const today = new Date().toDateString();
-            const claimBtn = document.getElementById('claimBtn');
-            const rewardText = document.getElementById('bonusRewardText');
-
-            let nextStreak = (lastClaim && new Date(today) - new Date(lastClaim) === 86400000) ? streak + 1 : 1;
-            let reward = 50 + (nextStreak - 1) * 15;
-            rewardText.innerText = reward + " 🪙";
-
-            if (lastClaim === today) {
-                claimBtn.disabled = true;
-                claimBtn.innerText = "Olingan ✅";
-            } else {
-                claimBtn.disabled = false;
-                claimBtn.innerText = "Olish";
-            }
-        }
-
-        function claimDailyBonus() {
-            const today = new Date().toDateString();
-            if (lastClaim === today) return;
-
-            let reward = 50 + streak * 15;
-            coins += reward;
-            streak++;
-            lastClaim = today;
-
-            addXP(25);
-            localStorage.setItem('cs2_coins', coins);
-            localStorage.setItem('cs2_streak', streak);
-            localStorage.setItem('cs2_last_claim', lastClaim);
-
-            updateUI();
-            checkDailyBonus();
-            alert("Tabriklaymiz! Sizga " + reward + " coin berildi! 🎉");
-        }
-
-        function addXP(amount) {
-            xp += amount;
-            if (xp >= 100) {
-                level += Math.floor(xp / 100);
-                xp = xp % 100;
-                alert("Tabriklaymiz! Darajangiz oshdi: LVL " + level + " 🚀");
-            }
-            localStorage.setItem('cs2_level', level);
-            localStorage.setItem('cs2_xp', xp);
+            renderInventory();
         }
 
         function switchTab(tabId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
+
             document.getElementById(tabId).classList.add('active');
             document.getElementById('nav-' + tabId).classList.add('active');
         }
 
-        function openCase(caseName, price) {
-            if (coins < price) {
-                alert("Tangalaringiz yetarli emas! 🪙\n'+' tugmasini bosib hisobni to'ldiring.");
+        function saveSteamLink() {
+            let url = document.getElementById('steamTradeInput').value.trim();
+            if (!url.includes("steamcommunity.com")) {
+                alert("Iltimos, to'g'ri Steam Trade URL havolasini kiriting!");
                 return;
             }
-            coins -= price;
-            localStorage.setItem('cs2_coins', coins);
-
-            addXP(15);
-
-            let availableSkins = skinsList[caseName] || skinsList["Kilowatt Case"];
-            lastDrop = availableSkins[Math.floor(Math.random() * availableSkins.length)];
-            document.getElementById('dropName').innerText = lastDrop;
-            document.getElementById('dropModal').style.display = 'flex';
+            steamTradeUrl = url;
+            localStorage.setItem('cs2_steam_trade_url', steamTradeUrl);
             updateUI();
+            alert("Steam Trade URL havolangiz muvaffaqiyatli saqlandi! 🎮✅");
         }
 
-        function closeModal() {
-            document.getElementById('dropModal').style.display = 'none';
-            inventory.push(lastDrop);
-            localStorage.setItem('cs2_inventory', JSON.stringify(inventory));
-            updateInventory();
-        }
-
-        function withdrawSkin(index) {
-            if (!steamUrl || !steamName) {
-                alert("Skinni chiqarish uchun avval Profil bo'limida Steam hisobingizni ulang va saqlang!");
-                switchTab('profile');
+        /* CS2 Roulette Animation logic */
+        function startCaseOpen(caseName, price) {
+            if (coins < price) {
+                alert("Tangalaringiz yetarli emas! 🪙 Balansni to'ldiring.");
+                openDepositModal();
                 return;
             }
-            let skin = inventory[index];
-            alert("So'rov qabul qilindi! 📦\n'" + skin + "' skini Steam'dagi (" + steamName + ") hisobingizga yuborilmoqda.");
-            inventory.splice(index, 1);
-            localStorage.setItem('cs2_inventory', JSON.stringify(inventory));
-            updateInventory();
+
+            coins -= price;
+            localStorage.setItem('cs2_blue_coins', coins);
+            updateUI();
+
+            document.getElementById('modalCaseTitle').innerText = caseName + " ochilmoqda...";
+            document.getElementById('rouletteResult').style.display = "none";
+            document.getElementById('rouletteModal').style.display = "flex";
+
+            const track = document.getElementById('rouletteTrack');
+            track.style.transition = "none";
+            track.style.transform = "translateX(0px)";
+            track.innerHTML = "";
+
+            // Generate items for roulette
+            let rouletteItems = [];
+            for (let i = 0; i < 40; i++) {
+                let randomItem = cs2Database[Math.floor(Math.random() * cs2Database.length)];
+                rouletteItems.push(randomItem);
+                
+                let itemDiv = document.createElement('div');
+                itemDiv.className = "roulette-item";
+                itemDiv.innerHTML = `<img src="${randomItem.img}" alt="skin"><span>${randomItem.name}</span>`;
+                track.appendChild(itemDiv);
+            }
+
+            // Winning item at index 32
+            wonItemGlobal = cs2Database[Math.floor(Math.random() * cs2Database.length)];
+            rouletteItems[32] = wonItemGlobal;
+            track.children[32].innerHTML = `<img src="${wonItemGlobal.img}" alt="skin"><span>${wonItemGlobal.name}</span>`;
+
+            // Start Animation
+            setTimeout(() => {
+                track.style.transition = "transform 4s cubic-bezier(0.1, 1, 0.1, 1)";
+                let stopPos = -(32 * 110 - 120); 
+                track.style.transform = `translateX(${stopPos}px)`;
+            }, 100);
+
+            setTimeout(() => {
+                document.getElementById('wonItemTitle').innerText = wonItemGlobal.name;
+                document.getElementById('wonItemPrice').innerText = "Steam Narxi: $" + wonItemGlobal.priceUSD.toFixed(2);
+                document.getElementById('rouletteResult').style.display = "block";
+            }, 4300);
         }
 
-        function updateInventory() {
+        function closeRouletteModal() {
+            document.getElementById('rouletteModal').style.display = "none";
+            if (wonItemGlobal) {
+                inventory.push(wonItemGlobal);
+                localStorage.setItem('cs2_inventory_v2', JSON.stringify(inventory));
+                renderInventory();
+            }
+        }
+
+        function renderInventory() {
             const container = document.getElementById('invContainer');
             if (inventory.length === 0) {
-                container.innerHTML = '<div style="grid-column: span 2; color: #64748b; padding: 30px; text-align:center;">Inventar bo\'sh. Keys ochib skin yuting!</div>';
+                container.innerHTML = `<div style="grid-column: span 2; color: #64748b; padding: 40px; text-align:center;">Inventaringiz bo'sh. Keys ochib skin yuting!</div>`;
                 return;
             }
+
             container.innerHTML = "";
             inventory.forEach((item, index) => {
+                let rarityClass = "rarity-milspec";
+                if(item.rarity === "cover") rarityClass = "rarity-covert";
+                if(item.rarity === "classified") rarityClass = "rarity-classified";
+                if(item.rarity === "restricted") rarityClass = "rarity-restricted";
+                if(item.rarity === "gold") rarityClass = "rarity-gold";
+
                 container.innerHTML += `
-                    <div class="inv-item">
-                        <img src="https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZFCb-cX_qnYz3400vt71f43565ND4uH18-A29-6zN9S2d9Y10iG355-Au35K3yB357_pD_p-s0-M6OOnC-x-f-3yEwS2E9fL5O" alt="skin">
-                        <div class="inv-name">${item}</div>
-                        <button class="withdraw-btn" onclick="withdrawSkin(${index})">Steam'ga chiqarish 🚀</button>
+                    <div class="inv-card ${rarityClass}">
+                        <img src="${item.img}" alt="skin">
+                        <div class="inv-item-title">${item.name}</div>
+                        <div class="inv-steam-price">Steam: $${item.priceUSD}</div>
+                        <div class="action-btns">
+                            <button class="btn-sell" onclick="sellItem(${index})">Sotish (+${item.coinVal}🪙)</button>
+                            <button class="btn-withdraw" onclick="withdrawItem(${index})">Steam</button>
+                        </div>
                     </div>
                 `;
             });
         }
 
-        // Boshlanishida yuklash
+        function sellItem(index) {
+            let item = inventory[index];
+            coins += item.coinVal;
+            inventory.splice(index, 1);
+            localStorage.setItem('cs2_blue_coins', coins);
+            localStorage.setItem('cs2_inventory_v2', JSON.stringify(inventory));
+            updateUI();
+            alert(`Siz '${item.name}' skinini ${item.coinVal} 🪙 ga sotdingiz!`);
+        }
+
+        function withdrawItem(index) {
+            if (!steamTradeUrl) {
+                alert("Skinni Steam'ga chiqarish uchun Profil bo'limida Steam Trade URL havolangizni saqlang!");
+                switchTab('profile');
+                return;
+            }
+            let item = inventory[index];
+            alert(`So'rov qabul qilindi! 📦\n'${item.name}' skini Steam Trade havolangizga yuborilmoqda.`);
+            inventory.splice(index, 1);
+            localStorage.setItem('cs2_inventory_v2', JSON.stringify(inventory));
+            updateUI();
+        }
+
+        function startCaseBattle() {
+            if (coins < 20000) {
+                alert("Case Battle uchun 20 000 🪙 yetarli emas!");
+                return;
+            }
+            coins -= 20000;
+            localStorage.setItem('cs2_blue_coins', coins);
+            updateUI();
+
+            alert("Battle boshlandi! ⚔️ O'yinchi va Bot bir vaqtda keys ochmoqda...");
+            
+            let userDrop = cs2Database[Math.floor(Math.random() * cs2Database.length)];
+            let botDrop = cs2Database[Math.floor(Math.random() * cs2Database.length)];
+
+            setTimeout(() => {
+                if (userDrop.priceUSD >= botDrop.priceUSD) {
+                    alert(`G'ALABA! 🎉\nSiz tushirdingiz: ${userDrop.name} ($${userDrop.priceUSD})\nBot tushirdi: ${botDrop.name} ($${botDrop.priceUSD})\n\nSiz ikkala skinni ham yutib oldingiz!`);
+                    inventory.push(userDrop);
+                    inventory.push(botDrop);
+                } else {
+                    alert(`MAG'LUBIYAT! 🤖\nSiz tushirdingiz: ${userDrop.name} ($${userDrop.priceUSD})\nBot tushirdi: ${botDrop.name} ($${botDrop.priceUSD})\n\nBot g'olib bo'ldi.`);
+                }
+                localStorage.setItem('cs2_inventory_v2', JSON.stringify(inventory));
+                updateUI();
+            }, 1000);
+        }
+
+        /* Deposit Modal */
+        function openDepositModal() { document.getElementById('depositModal').style.display = 'flex'; }
+        function closeDepositModal() { document.getElementById('depositModal').style.display = 'none'; }
+        function copyHumoCard() {
+            navigator.clipboard.writeText("9860380012345678");
+            alert("Humo karta raqami nusxalandi: 9860380012345678");
+        }
+        function submitDeposit() {
+            let selectVal = document.getElementById('depositOption').value.split('|');
+            let coinsToAdd = selectVal[0];
+            let priceUZS = selectVal[1];
+            let checkNum = document.getElementById('checkNumberInput').value.trim();
+
+            if(!checkNum) {
+                alert("Iltimos, chek raqami yoki to'lov tasdig'ini kiriting!");
+                return;
+            }
+
+            alert(`To'lov so'rovi yuborildi! 💳\n\n${priceUZS} UZS to'lov uchun ${coinsToAdd} 🪙 beriladi. Adminlar tekshirib tasdiqlagach coin qo'shiladi.`);
+            closeDepositModal();
+        }
+
         updateUI();
-        checkDailyBonus();
     </script>
 </body>
 </html>
