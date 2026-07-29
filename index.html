@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>CS2 Skin Bot</title>
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --bg-color: #0b0e14;
@@ -82,7 +84,7 @@
       justify-content: center;
     }
 
-    /* Container */
+    /* Grid Layout */
     .container {
       padding: 16px;
     }
@@ -93,7 +95,6 @@
       margin-bottom: 16px;
     }
 
-    /* Grid Layout */
     .case-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -111,7 +112,7 @@
     }
 
     .case-card:active {
-      transform: scale(0.95);
+      transform: scale(0.96);
       border-color: var(--accent-color);
     }
 
@@ -129,20 +130,20 @@
       margin-bottom: 8px;
     }
 
-    /* KATTALASHTIRILGAN TUGMALAR */
+    /* Katta Bosiladigan Tugma */
     .case-price-btn {
       width: 100%;
       background: rgba(243, 156, 18, 0.15);
       color: var(--accent-color);
       border: 1px solid var(--accent-color);
-      padding: 10px 0;
+      padding: 12px 0;
       border-radius: 10px;
       font-size: 14px;
       font-weight: bold;
       cursor: pointer;
     }
 
-    /* Modal (Keys kontenti) */
+    /* Modal (Keys kontenti va Karta) */
     .modal {
       display: none;
       position: fixed;
@@ -201,7 +202,26 @@
     .item-card.classified { border-color: var(--classified); }
     .item-card.restricted { border-color: var(--restricted); }
 
-    /* KATTA BOTTOM NAVIGATION */
+    /* Karta ko'rinishi */
+    .card-box {
+      background: #0d111a;
+      border: 1px dashed var(--accent-color);
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .card-number {
+      font-family: monospace;
+      font-size: 18px;
+      color: #00ff88;
+      letter-spacing: 2px;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    /* Katta Bottom Nav */
     .nav-bar {
       position: fixed;
       bottom: 0; width: 100%;
@@ -244,7 +264,7 @@
     <div class="user-level">LVL 1</div>
     <div class="balance-box">
       <span>💰 0</span>
-      <button class="add-btn" onclick="alert('Karta: 9860606760894836')">+</button>
+      <button class="add-btn" onclick="openDeposit()">+</button>
     </div>
   </div>
 
@@ -283,20 +303,18 @@
     </div>
   </div>
 
-  <!-- Modal (Keys ichi) -->
-  <div class="modal" id="caseModal">
+  <!-- Modal (Keys ichi / Deposit) -->
+  <div class="modal" id="appModal">
     <div class="modal-content">
       <div class="modal-header">
         <h3 id="modalTitle">Keys Tarkibi</h3>
         <button class="close-btn" onclick="closeModal()">&times;</button>
       </div>
-      <p style="font-size: 13px; color: var(--text-sub);">Keysdan tushishi mumkin bo'lgan skinlar:</p>
-      
-      <div class="items-grid" id="modalItems"></div>
+      <div id="modalBody"></div>
     </div>
   </div>
 
-  <!-- Katta va Qulay Bottom Nav -->
+  <!-- Navigatsiya -->
   <div class="nav-bar">
     <div class="nav-item">
       <span class="nav-icon">🏠</span>
@@ -317,6 +335,12 @@
   </div>
 
   <script>
+    // Telegram Web App tayyorgarligi
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
     const caseData = {
       "Kilowatt Case": [
         { name: "AK-47 | Inheritance", type: "covert" },
@@ -340,24 +364,41 @@
 
     function openCase(title) {
       document.getElementById('modalTitle').innerText = title;
-      const container = document.getElementById('modalItems');
-      container.innerHTML = '';
-
+      const body = document.getElementById('modalBody');
+      
+      let html = '<p style="font-size:13px; color:var(--text-sub);">Keysdan tushishi mumkin bo\'lgan skinlar:</p><div class="items-grid">';
       const items = caseData[title] || [];
+      
       items.forEach(item => {
-        container.innerHTML += `
+        html += `
           <div class="item-card ${item.type}">
             <div style="font-size:28px;">🔪</div>
             <div style="font-size: 12px; font-weight: bold; margin-top:6px;">${item.name}</div>
           </div>
         `;
       });
+      html += '</div>';
 
-      document.getElementById('caseModal').style.display = 'flex';
+      body.innerHTML = html;
+      document.getElementById('appModal').style.display = 'flex';
+    }
+
+    function openDeposit() {
+      document.getElementById('modalTitle').innerText = "Hisobni to'ldirish";
+      const body = document.getElementById('modalBody');
+      
+      body.innerHTML = `
+        <div class="card-box">
+          <div style="font-size: 12px; color: var(--text-sub);">Humo Karta raqami:</div>
+          <div class="card-number" onclick="navigator.clipboard.writeText('9860606760894836'); alert('Karta raqami nusxalandi!');">9860 6067 6089 4836</div>
+          <div style="font-size: 11px; color: var(--accent-color); margin-top: 6px;">(Ustiga bossangiz nusxalanadi)</div>
+        </div>
+      `;
+      document.getElementById('appModal').style.display = 'flex';
     }
 
     function closeModal() {
-      document.getElementById('caseModal').style.display = 'none';
+      document.getElementById('appModal').style.display = 'none';
     }
   </script>
 </body>
