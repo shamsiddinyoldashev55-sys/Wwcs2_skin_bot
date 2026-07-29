@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Skin Drop</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #121418; color: #fff; padding-bottom: 70px; text-align: center; }
+        
+        /* Header */
+        .header { background: #1a1d24; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2e39; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .balance { background: #252932; padding: 6px 12px; border-radius: 20px; color: #ffb703; font-weight: bold; }
+
+        /* Container */
+        .container { padding: 15px; }
+        .title { margin: 15px 0; font-size: 1.2rem; color: #aaa; }
+
+        /* Cases Grid */
+        .cases-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .case-card { background: #1a1d24; border: 1px solid #2a2e39; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .case-card:active { transform: scale(0.95); }
+        .case-card img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 10px; }
+        .case-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 5px; }
+        .case-price { color: #4cc9f0; font-size: 0.85rem; font-weight: bold; }
+
+        /* Modal (Keys Ochish Oynasi) */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; flex-direction: column; }
+        .modal-content { background: #1a1d24; padding: 25px; border-radius: 16px; width: 85%; max-width: 320px; border: 1px solid #333; }
+        .drop-result { font-size: 1.2rem; font-weight: bold; margin: 15px 0; color: #00f5d4; }
+        .btn { background: #4cc9f0; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000; width: 100%; }
+
+        /* Navigation Bar */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1d24; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #2a2e39; }
+        .nav-item { color: #888; text-decoration: none; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-item.active { color: #4cc9f0; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="user-info">
+            <span id="username">Foydalanuvchi</span>
+        </div>
+        <div class="balance">💰 <span id="coins">1000</span> Tanga</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="title">Keysni tanlang va omadingizni sinab ko'ring</div>
+        
+        <div class="cases-grid">
+            <div class="case-card" onclick="openCase('Grunt', 500)">
+                <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" alt="Case">
+                <div class="case-title">Grunt Case</div>
+                <div class="case-price">500 Tanga</div>
+            </div>
+            <div class="case-card" onclick="openCase('Tundra', 750)">
+                <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" alt="Case">
+                <div class="case-title">Tundra Case</div>
+                <div class="case-price">750 Tanga</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drop Modal -->
+    <div class="modal" id="dropModal">
+        <div class="modal-content">
+            <h3>Keys Ochildi!</h3>
+            <div class="drop-result" id="dropName">AK-47 | Redline</div>
+            <button class="btn" onclick="closeModal()">Inventarga olish</button>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="nav-bar">
+        <div class="nav-item active">🏠 Bosh sahifa</div>
+        <div class="nav-item">📦 Keyslar</div>
+        <div class="nav-item">🎒 Inventar</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Mini appni to'liq ekranga yoyish
+
+        // Telegram foydalanuvchi ismini chiqarish
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('username').innerText = tg.initDataUnsafe.user.first_name;
+        }
+
+        let coins = 1000;
+        const skins = ["AK-47 | Slate", "AWP | Atheris", "M4A4 | Evil Daimyo", "USP-S | Cyrex", "★ Karambit | Fade"];
+
+        function openCase(caseName, price) {
+            if (coins < price) {
+                alert("Tangalaringiz yetarli emas!");
+                return;
+            }
+            coins -= price;
+            document.getElementById('coins').innerText = coins;
+
+            // Tasodifiy skin tanlash
+            const randomSkin = skins[Math.floor(Math.random() * skins.length)];
+            document.getElementById('dropName').innerText = randomSkin;
+            document.getElementById('dropModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('dropModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
