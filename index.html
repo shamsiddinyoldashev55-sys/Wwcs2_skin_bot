@@ -3,114 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS2 Skin Drop</title>
+    <title>CS2 Skin Bot</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #121418; color: #fff; padding-bottom: 70px; text-align: center; }
+        body { background-color: #121418; color: #fff; padding-bottom: 80px; }
         
         /* Header */
-        .header { background: #1a1d24; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2e39; }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .balance { background: #252932; padding: 6px 12px; border-radius: 20px; color: #ffb703; font-weight: bold; }
+        .header { background: #1a1d24; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2e39; position: sticky; top: 0; z-index: 100; }
+        .user-box { display: flex; align-items: center; gap: 8px; }
+        .lvl-badge { background: #10b981; color: #000; font-weight: bold; font-size: 0.75rem; padding: 2px 6px; border-radius: 6px; }
+        .balance { background: #252932; padding: 6px 12px; border-radius: 20px; color: #fbbf24; font-weight: bold; font-size: 0.9rem; }
 
-        /* Container */
-        .container { padding: 15px; }
-        .title { margin: 15px 0; font-size: 1.2rem; color: #aaa; }
+        /* Views */
+        .view { display: none; padding: 15px; }
+        .view.active { display: block; }
 
+        /* Home View */
+        .profile-card { background: #1a1d24; border: 1px solid #2a2e39; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .xp-bar-bg { background: #2a2e39; border-radius: 10px; height: 8px; width: 100%; margin-top: 8px; overflow: hidden; }
+        .xp-bar-fill { background: #10b981; height: 100%; width: 81%; }
+        
+        .section-title { font-size: 1rem; margin: 15px 0 10px 0; color: #9ca3af; text-align: left; }
+        
         /* Cases Grid */
-        .cases-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .case-card { background: #1a1d24; border: 1px solid #2a2e39; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: transform 0.2s; }
-        .case-card:active { transform: scale(0.95); }
-        .case-card img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 10px; }
-        .case-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 5px; }
-        .case-price { color: #4cc9f0; font-size: 0.85rem; font-weight: bold; }
+        .cases-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .case-card { background: #1a1d24; border: 1px solid #2a2e39; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .case-card:active { transform: scale(0.96); }
+        .case-card img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 8px; }
+        .case-title { font-weight: bold; font-size: 0.9rem; margin-bottom: 4px; }
+        .case-price { color: #fbbf24; font-size: 0.85rem; font-weight: bold; }
 
-        /* Modal (Keys Ochish Oynasi) */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; flex-direction: column; }
-        .modal-content { background: #1a1d24; padding: 25px; border-radius: 16px; width: 85%; max-width: 320px; border: 1px solid #333; }
-        .drop-result { font-size: 1.2rem; font-weight: bold; margin: 15px 0; color: #00f5d4; }
-        .btn { background: #4cc9f0; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000; width: 100%; }
+        /* Games List */
+        .game-item { background: linear-gradient(135deg, #1a1d24, #252932); border: 1px solid #2a2e39; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+        .game-info h4 { font-size: 0.95rem; margin-bottom: 4px; color: #fff; }
+        .game-info p { font-size: 0.75rem; color: #9ca3af; }
+        .play-btn { background: #ef4444; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        /* Inventory */
+        .inv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .inv-item { background: #1a1d24; border: 1px solid #2a2e39; border-radius: 10px; padding: 10px; text-align: center; }
+        .inv-item img { width: 70px; height: 70px; object-fit: contain; }
+        .inv-name { font-size: 0.8rem; margin: 5px 0; color: #e5e7eb; }
+        .inv-price { font-size: 0.75rem; color: #fbbf24; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; flex-direction: column; z-index: 1000; }
+        .modal-content { background: #1a1d24; padding: 25px; border-radius: 16px; width: 85%; max-width: 300px; border: 1px solid #374151; text-align: center; }
+        .drop-result { font-size: 1.1rem; font-weight: bold; margin: 15px 0; color: #34d399; }
+        .btn { background: #3b82f6; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; width: 100%; }
 
         /* Navigation Bar */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1d24; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #2a2e39; }
-        .nav-item { color: #888; text-decoration: none; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-item.active { color: #4cc9f0; font-weight: bold; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1d24; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #2a2e39; z-index: 100; }
+        .nav-item { color: #9ca3af; text-decoration: none; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
+        .nav-item.active { color: #3b82f6; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <!-- Header -->
     <div class="header">
-        <div class="user-info">
-            <span id="username">Foydalanuvchi</span>
+        <div class="user-box">
+            <span class="lvl-badge">LVL 7</span>
+            <span id="username" style="font-weight: bold; font-size: 0.9rem;">Foydalanuvchi</span>
         </div>
-        <div class="balance">💰 <span id="coins">1000</span> Tanga</div>
+        <div class="balance">💰 <span id="coins">2300</span></div>
     </div>
 
-    <!-- Main Content -->
-    <div class="container">
-        <div class="title">Keysni tanlang va omadingizni sinab ko'ring</div>
-        
+    <!-- 1. BOSH SAHIFA VIEW -->
+    <div id="home" class="view active">
+        <div class="profile-card" style="text-align: left;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                <span>Tajriba (XP)</span>
+                <span style="color: #10b981;">81%</span>
+            </div>
+            <div class="xp-bar-bg"><div class="xp-bar-fill"></div></div>
+        </div>
+
+        <div class="section-title">Tezkor o'yinlar</div>
+        <div class="game-item">
+            <div class="game-info">
+                <h4>Rush Mid 🎯</h4>
+                <p>Skinlar uchun navbatma-navbat PvP</p>
+            </div>
+            <button class="play-btn" onclick="switchTab('games')">O'ynash</button>
+        </div>
+    </div>
+
+    <!-- 2. KEYSLAR VIEW -->
+    <div id="cases" class="view">
+        <div class="section-title" style="margin-top:0;">Keyslar kolleksiyasi</div>
         <div class="cases-grid">
             <div class="case-card" onclick="openCase('Grunt', 500)">
                 <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" alt="Case">
-                <div class="case-title">Grunt Case</div>
-                <div class="case-price">500 Tanga</div>
+                <div class="case-title">Grunt</div>
+                <div class="case-price">500 🪙</div>
             </div>
             <div class="case-card" onclick="openCase('Tundra', 750)">
                 <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" alt="Case">
-                <div class="case-title">Tundra Case</div>
-                <div class="case-price">750 Tanga</div>
+                <div class="case-title">Tundra</div>
+                <div class="case-price">750 🪙</div>
+            </div>
+            <div class="case-card" onclick="openCase('Namangan', 2000)">
+                <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" alt="Case">
+                <div class="case-title">Namangan</div>
+                <div class="case-price">2 000 🪙</div>
+            </div>
+            <div class="case-card" onclick="openCase('Vandal', 3000)">
+                <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" alt="Case">
+                <div class="case-title">Vandal</div>
+                <div class="case-price">3 000 🪙</div>
             </div>
         </div>
     </div>
 
-    <!-- Drop Modal -->
-    <div class="modal" id="dropModal">
-        <div class="modal-content">
-            <h3>Keys Ochildi!</h3>
-            <div class="drop-result" id="dropName">AK-47 | Redline</div>
-            <button class="btn" onclick="closeModal()">Inventarga olish</button>
+    <!-- 3. O'YINLAR VIEW -->
+    <div id="games" class="view">
+        <div class="section-title" style="margin-top:0;">Mini O'yinlar</div>
+        <div class="game-item">
+            <div class="game-info">
+                <h4>Rus ruletkasi 🇷🇺</h4>
+                <p>R8 barabani, omon qolgan bankni oladi</p>
+            </div>
+            <button class="play-btn" style="background:#8b5cf6;" onclick="alert('Tez kunda!')">O'ynash</button>
+        </div>
+        <div class="game-item">
+            <div class="game-info">
+                <h4>Keys Janglar ⚔️</h4>
+                <p>Boshqa o'yinchilarga qarshi jang</p>
+            </div>
+            <button class="play-btn" style="background:#3b82f6;" onclick="alert('Tez kunda!')">Jang</button>
         </div>
     </div>
 
-    <!-- Bottom Nav -->
+    <!-- 4. INVENTAR VIEW -->
+    <div id="inventory" class="view">
+        <div class="section-title" style="margin-top:0;">Sizning buyumlaringiz</div>
+        <div class="inv-grid" id="invContainer">
+            <div style="grid-column: span 2; color: #6b7280; padding: 30px; text-align:center;">Inventar bo'sh. Keys ochib skin yuting!</div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="dropModal">
+        <div class="modal-content">
+            <h3>Tabriklaymiz! 🎉</h3>
+            <div class="drop-result" id="dropName">AK-47 | Redline</div>
+            <button class="btn" onclick="closeModal()">Inventarga qo'shish</button>
+        </div>
+    </div>
+
+    <!-- Bottom Nav Bar -->
     <div class="nav-bar">
-        <div class="nav-item active">🏠 Bosh sahifa</div>
-        <div class="nav-item">📦 Keyslar</div>
-        <div class="nav-item">🎒 Inventar</div>
+        <div class="nav-item active" onclick="switchTab('home')" id="nav-home">🏠 Bosh sahifa</div>
+        <div class="nav-item" onclick="switchTab('cases')" id="nav-cases">📦 Keyslar</div>
+        <div class="nav-item" onclick="switchTab('games')" id="nav-games">🎮 O'yinlar</div>
+        <div class="nav-item" onclick="switchTab('inventory')" id="nav-inventory">🎒 Inventar</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Mini appni to'liq ekranga yoyish
+        tg.expand();
 
-        // Telegram foydalanuvchi ismini chiqarish
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('username').innerText = tg.initDataUnsafe.user.first_name;
         }
 
-        let coins = 1000;
-        const skins = ["AK-47 | Slate", "AWP | Atheris", "M4A4 | Evil Daimyo", "USP-S | Cyrex", "★ Karambit | Fade"];
+        let coins = 2300;
+        let inventory = [];
+        let lastDrop = "";
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('nav-' + tabId).classList.add('active');
+        }
+
+        const skins = ["AK-47 | Slate", "AWP | Atheris", "M4A4 | Evil Daimyo", "USP-S | Cyrex", "★ Karambit | Fade", "Desert Eagle | Printstream"];
 
         function openCase(caseName, price) {
             if (coins < price) {
-                alert("Tangalaringiz yetarli emas!");
+                alert("Tangalaringiz yetarli emas! 🪙");
                 return;
             }
             coins -= price;
             document.getElementById('coins').innerText = coins;
 
-            // Tasodifiy skin tanlash
-            const randomSkin = skins[Math.floor(Math.random() * skins.length)];
-            document.getElementById('dropName').innerText = randomSkin;
+            lastDrop = skins[Math.floor(Math.random() * skins.length)];
+            document.getElementById('dropName').innerText = lastDrop;
             document.getElementById('dropModal').style.display = 'flex';
         }
 
         function closeModal() {
             document.getElementById('dropModal').style.display = 'none';
+            inventory.push(lastDrop);
+            updateInventory();
+        }
+
+        function updateInventory() {
+            const container = document.getElementById('invContainer');
+            if (inventory.length === 0) {
+                container.innerHTML = '<div style="grid-column: span 2; color: #6b7280; padding: 30px; text-align:center;">Inventar bo\'sh.</div>';
+                return;
+            }
+            container.innerHTML = "";
+            inventory.forEach((item, index) => {
+                container.innerHTML += `
+                    <div class="inv-item">
+                        <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" alt="skin">
+                        <div class="inv-name">${item}</div>
+                        <div class="inv-price">⭐ $0.50</div>
+                    </div>
+                `;
+            });
         }
     </script>
 </body>
 </html>
+
